@@ -1,0 +1,22 @@
+QUIZ AUTOMATION TEST EXECUTION LOG
+================================
+Generated: 2025-11-15T17:32:21.786033
+Test Framework: Selenium WebDriver 4.15.0
+Browser: Chrome
+================================
+
+[17:32:21] ==========================================
+[17:32:21] 🚀 QUIZ AUTOMATION TEST INITIALIZATION
+[17:32:21] ==========================================
+[17:32:21] ❌ Driver initialization failed: chromedriver located at chromedriver.exe, but invalid
+For documentation on this error, please visit: https://www.selenium.dev/documentation/webdriver/troubleshooting/errors/driver_location/
+Build info: version: '4.15.0', revision: '1d14b5521b'
+System info: os.name: 'Windows 11', os.arch: 'amd64', os.version: '10.0', java.version: '25.0.1'
+Driver info: driver.version: ChromeDriver
+[17:32:21] Critical Error: WebDriver initialization failed
+[17:32:21] 📄 Test report generated: Quiz_Test_Report_20251115_173221.html
+
+================================
+END OF EXECUTION LOG
+Total Log Entries: 6
+Screenshots Taken: 0
