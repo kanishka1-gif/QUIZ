@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BrainForge Arena - Forge Your Knowledge</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            min-height: 100vh;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.3);
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        header {
+            background: linear-gradient(135deg, #1a2a3a 0%, #2d3b4a 100%);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        header::before {
+            content: '⚡';
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 3em;
+            opacity: 0.1;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(180deg); }
+        }
+        h1 { 
+            font-size: 3em; 
+            margin-bottom: 10px;
+            background: linear-gradient(45deg, #64b3f4, #c2e59c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 2px 10px rgba(100, 179, 244, 0.3);
+            font-weight: 800;
+        }
+        .subtitle {
+            font-size: 1.2em;
+            opacity: 0.9;
+            margin-top: 10px;
+        }
+        .screen { 
+            display: none; 
+            padding: 40px;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .screen.active { 
+            display: block; 
+        }
+        .form-group {
+            margin: 25px 0;
+            position: relative;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2c3e50;
+            font-size: 1.1em;
+        }
+        input, select {
+            width: 100%;
+            padding: 18px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: rgba(255, 255, 255, 0.9);
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #64b3f4;
+            box-shadow: 0 0 0 3px rgba(100, 179, 244, 0.1);
+            transform: translateY(-2px);
+        }
+        .btn {
+            background: linear-gradient(135deg, #64b3f4 0%, #c2e59c 100%);
+            color: #1a2a3a;
+            border: none;
+            padding: 18px 35px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        .btn:hover::before {
+            left: 100%;
+        }
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(100, 179, 244, 0.4);
+        }
+        .quiz-header {
+            background: linear-gradient(135deg, #2d3b4a 0%, #3a4a5c 100%);
+            color: white;
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 3px solid #64b3f4;
+        }
+        .timer {
+            font-size: 28px;
+            font-weight: bold;
+            color: #ff6b6b;
+            text-shadow: 0 2px 10px rgba(255, 107, 107, 0.3);
+            animation: pulse 1s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .question-text {
+            font-size: 22px;
+            margin: 35px 0;
+            color: #2c3e50;
+            line-height: 1.7;
+            font-weight: 600;
+            text-align: center;
+        }
+        .options-container {
+            display: grid;
+            gap: 18px;
+            margin: 35px 0;
+        }
+        .option {
+            padding: 22px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(248, 249, 250, 0.8);
+            font-size: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .option::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #64b3f4;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .option:hover {
+            border-color: #64b3f4;
+            background: rgba(100, 179, 244, 0.05);
+            transform: translateX(5px);
+        }
+        .option:hover::before {
+            transform: scaleY(1);
+        }
+        .option.selected {
+            border-color: #64b3f4;
+            background: linear-gradient(135deg, #64b3f4, #c2e59c);
+            color: white;
+            transform: translateX(10px);
+        }
+        .option.selected::before {
+            transform: scaleY(1);
+            background: white;
+        }
+        .question-navigation {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin: 25px 0;
+            justify-content: center;
+        }
+        .nav-btn {
+            padding: 12px 18px;
+            border: 2px solid #64b3f4;
+            background: white;
+            color: #64b3f4;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 50px;
+        }
+        .nav-btn.current {
+            background: #64b3f4;
+            color: white;
+            transform: scale(1.1);
+        }
+        .nav-btn.answered {
+            background: #27ae60;
+            color: white;
+            border-color: #27ae60;
+        }
+        .quiz-footer {
+            display: flex;
+            gap: 18px;
+            justify-content: center;
+            margin-top: 35px;
+        }
+        .results-summary {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 15px;
+            margin: 25px 0;
+            border: 2px solid rgba(100, 179, 244, 0.2);
+        }
+        .score-display {
+            font-size: 5em;
+            font-weight: 800;
+            background: linear-gradient(45deg, #64b3f4, #c2e59c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 25px 0;
+            text-shadow: 0 5px 15px rgba(100, 179, 244, 0.2);
+        }
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 40px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 20px;
+        }
+        .stat-value {
+            font-size: 3em;
+            font-weight: 800;
+        }
+        .stat-value.correct { 
+            color: #27ae60;
+            text-shadow: 0 2px 10px rgba(39, 174, 96, 0.3);
+        }
+        .stat-value.wrong { 
+            color: #e74c3c;
+            text-shadow: 0 2px 10px rgba(231, 76, 60, 0.3);
+        }
+        .stat-value.time { 
+            color: #f39c12;
+            text-shadow: 0 2px 10px rgba(243, 156, 18, 0.3);
+        }
+        .result-item {
+            padding: 25px;
+            margin: 18px 0;
+            border-radius: 12px;
+            border-left: 6px solid #ddd;
+            background: white;
+            transition: transform 0.3s ease;
+        }
+        .result-item:hover {
+            transform: translateX(5px);
+        }
+        .result-item.correct {
+            border-left-color: #27ae60;
+            background: linear-gradient(135deg, #d5f4e6, #e8f8f1);
+        }
+        .result-item.incorrect {
+            border-left-color: #e74c3c;
+            background: linear-gradient(135deg, #fadbd8, #fdecea);
+        }
+        .hidden { display: none !important; }
+        
+        /* BrainForge specific elements */
+        .forge-animation {
+            display: inline-block;
+            animation: hammer 2s ease-in-out infinite;
+        }
+        @keyframes hammer {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-15deg); }
+            75% { transform: rotate(15deg); }
+        }
+        
+        .category-badge {
+            display: inline-block;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #64b3f4, #c2e59c);
+            color: #1a2a3a;
+            border-radius: 20px;
+            font-weight: 600;
+            margin: 10px 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧠 BrainForge Arena</h1>
+            <p class="subtitle">Forge Your Knowledge • Shape Your Mind • Conquer Challenges</p>
+            <div style="margin-top: 15px;">
+                <span class="category-badge">⚡ Quick Thinking</span>
+                <span class="category-badge">🎯 Precision</span>
+                <span class="category-badge">🚀 Speed</span>
+            </div>
+        </header>
+
+        <!-- Landing Page -->
+        <div id="landingPage" class="screen active">
+            <h2 style="color: #2c3e50; margin-bottom: 30px; text-align: center;">
+                Welcome to the <span style="color: #64b3f4;">Forge</span>
+            </h2>
+            <div class="form-group">
+                <input type="text" id="username" placeholder="Enter your forger name" value="Knowledge Smith">
+            </div>
+            <div class="form-group">
+                <label for="categorySelect">Choose Your Anvil:</label>
+                <select id="categorySelect">
+                    <option value="programming">🔥 Code Forge</option>
+                    <option value="general">📚 Wisdom Foundry</option>
+                    <option value="science">🔬 Science Crucible</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="difficultySelect">Select Heat Level:</label>
+                <select id="difficultySelect">
+                    <option value="easy">🌱 Warm Up</option>
+                    <option value="medium">🔥 Heating Up</option>
+                    <option value="hard">💫 White Hot</option>
+                </select>
+            </div>
+            <button id="startBtn" class="btn">
+                <span class="forge-animation">⚒️</span> Begin Forging
+            </button>
+        </div>
+
+        <!-- Quiz Page -->
+        <div id="quizPage" class="screen">
+            <div class="quiz-header">
+                <div class="timer" id="timer">30</div>
+                <div class="question-counter">
+                    Challenge <span id="currentQuestion">1</span>/<span id="totalQuestions">10</span>
+                </div>
+                <div class="score">Heat: <span id="scoreValue">0</span>°</div>
+            </div>
+            
+            <div class="question-text" id="questionText">
+                Preparing your mental metal...
+            </div>
+            
+            <div class="options-container" id="optionsContainer">
+                <!-- Options will be dynamically loaded here -->
+            </div>
+            
+            <div class="question-navigation" id="questionNav">
+                <!-- Navigation buttons will be dynamically loaded here -->
+            </div>
+            
+            <div class="quiz-footer">
+                <button id="prevBtn" class="nav-btn">⬅ Previous</button>
+                <button id="nextBtn" class="nav-btn">Next ➡</button>
+                <button id="submitBtn" class="btn hidden">🔥 Finish Forging</button>
+            </div>
+        </div>
+
+        <!-- Results Page -->
+        <div id="resultsPage" class="screen">
+            <h2 style="color: #2c3e50; text-align: center; margin-bottom: 30px;">
+                🎉 Masterwork Complete!
+            </h2>
+            
+            <div class="results-summary">
+                <div class="score-display" id="totalScore">0/0</div>
+                <p style="font-size: 1.2em; color: #666; margin-bottom: 20px;">
+                    Your knowledge has been perfectly forged!
+                </p>
+                <div class="stats">
+                    <div class="stat-item">
+                        <div class="stat-value correct" id="correctAnswers">0</div>
+                        <div class="stat-label">Perfect Strikes</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value wrong" id="wrongAnswers">0</div>
+                        <div class="stat-label">Needs Tempering</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value time" id="totalTime">0s</div>
+                        <div class="stat-label">Forging Time</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h3 style="color: #2c3e50; margin: 30px 0 20px 0; text-align: center;">
+                🔍 Forging Analysis
+            </h3>
+            <div class="detailed-analysis" id="detailedAnalysis">
+                <!-- Detailed results will be loaded here -->
+            </div>
+            
+            <button id="restartBtn" class="btn" style="margin-top: 30px;">
+                ⚒️ Start New Forge
+            </button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
